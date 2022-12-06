@@ -1,0 +1,15 @@
+{% extends 'desktop/base.html' %}
+{% block content %}
+    {% for bug in bugs %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="#">{{ bug.user }}</a>
+                    <small class="text-muted">{{ bug.project }}</small>
+                </div>
+                  <h2><a class="article-title" href="{% url 'bugs-detail' bug.id %}">{{ bug.project }}</a></h2>
+                <p class="article-content">{{ bug.description }}</p>
+            </div>
+        </article>
+    {% endfor %}
+{% endblock %}
