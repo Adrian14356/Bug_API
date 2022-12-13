@@ -1,39 +1,47 @@
 from django.shortcuts import render
 from .models import Bug
-from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-
-
+from rest_framework.generics import ListAPIView
+from .serializers import BugsSerializer
+from django.contrib import messages
 
 def home(request):
     return render(request, 'desktop/home.html', { 'bugs' : Bug.objects.all() })
 
-class BugsListView(ListView):
+class BugsListView(ListAPIView):
     model = Bug
-    template_name = "desktop/home.html"
-    context_object_name = "bugs"
+    serializer_class = BugsSerializer
 
-    def bugs(self, request):
-        if request.method == "GET":
-            project = request.GET["project"]
-            user = request.GET["user"]
+    def get_queryset(self):
 
-            if user and project is None:
-                print("404 error")
-            elif user is None:
-                print("404")
-            elif project is None:
-                print("404")
+            project_id = self.request.GET.get("project")
+            user_id = self.request.GET.get("user")
+
+            if user_id and project_id is None:
+                messages.warning("404")
+                bugs = []
+
+                if user_id and project_id is not None:
+                    messages.success(f"Project id {Bug.project}, user id {Bug.user}, bug {Bug.description}")
+
+            elif project_id is None:
+                messages.warning("404")
+                bugs = Bug.object.filter(user__id=user_id).all()
+
+                if bugs is not None:
+                    messages.success(f"Project id {Bug.project}, bug {Bug.description}")
+
+            elif user_id is None:
+
+                messages.warning("404")
+                bugs = Bug.object.filter(project__id=project_id).all()
+
+                if bugs is not None:
+                    messages.success(f"User id {Bug.user}, bug {Bug.description}")
+
             else:
-                print(user)
+                bugs = Bug.object.filter(project__id = project_id, user__id=user_id).all()
 
-        return render(request, "desktop/home.html")
-
-
-class BugsDetailView(DetailView):
-    model = Bug
-    template_name = "desktop/bugs.html"
-
-
+            return bugs
 
 
