@@ -1,0 +1,30 @@
+{% extends 'desktop/base.html' %}
+
+{% block script %}
+<script>
+function getBaseUrl(path){
+    let protocol = window.location.protocol;
+    let host = window.location.hostname;
+    let port = window.location.port;
+
+    return `${protocol}//${host ? host : ""}:${port}${path}`
+}
+async function getArticles(){
+    let articlesResp = await fetch(getBaseUrl('/desktop/bugs/'));
+
+    let data = await articlesResp.json();
+    data.forEach((bug, index) => {
+        console.log('===================')
+        console.log(`Article no ${index}`)
+        console.log(`Project id: ${bug.project}`);
+        console.log(`Bug description: ${bug.description}`);
+        console.log(`User id: ${bug.user}`);
+    });
+}
+</script>
+{% endblock %}
+
+{% block content %}
+    <h1>API Connector</h1>
+    <button onclick="getBug()">Get Bug</button>
+{% endblock %}
